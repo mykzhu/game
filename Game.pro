@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui opengl multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,8 +13,12 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    fieldwiget.cpp \
+    GroundPlane.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    fieldwiget.h \
+    GroundPlane.h
 
 FORMS    += mainwindow.ui
