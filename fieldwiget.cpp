@@ -5,6 +5,8 @@ float project_scale = 100;
 
 float edge_scale = 120*project_scale;
 
+float wall_shift_y = 1*project_scale;
+
 FieldWiget::FieldWiget(QWidget *parent) :
     QGLWidget(parent)
 {
@@ -28,8 +30,8 @@ void FieldWiget::initializeGL()
 
     // Create the shader program
     // Add both parts of the shader
-    program.addShaderFromSourceFile(QOpenGLShader::Vertex, "../game/TankVert.vert");
-    program.addShaderFromSourceFile(QOpenGLShader::Fragment, "../game/TankFrag.frag");
+    program.addShaderFromSourceFile(QOpenGLShader::Vertex, "TankVert.vert");
+    program.addShaderFromSourceFile(QOpenGLShader::Fragment, "TankFrag.frag");
 
     // Compile the shader program
     program.link();
@@ -63,8 +65,6 @@ void FieldWiget::initializeGL()
 
 void FieldWiget::resizeGL(int w, int h)
 {
-    glViewport(0, 0, w, h);
-
     glViewport(0, 0, w, h);
 
     perspective.setToIdentity();
@@ -134,4 +134,18 @@ void FieldWiget::createScene()
     GroundPlane::draw();
     model = mStack.back();
     mStack.pop_back();
+    //front
+    glBindTexture(GL_TEXTURE_2D, textureHandles[7]);
+    mStack.push_back(model);
+    model.translate(0, wall_shift_y, -edge_scale/2);
+    model.rotate(90, 1, 0, 0);
+    model.scale(edge_scale, edge_scale, edge_scale/2);
+    program.setUniformValue(pvMatrixUniform, perspective * view);
+    program.setUniformValue(mMatrixUniform, model);
+    program.setUniformValue(colorUniform, QVector3D(0.2, 0.6, 1.0));
+    program.setUniformValue(shadowColorUniform, QVector3D(0.2, 0.6, 1.0));
+    GroundPlane::draw();
+    model = mStack.back();
+    mStack.pop_back();
+
 }
