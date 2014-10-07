@@ -3,6 +3,8 @@
 
 float project_scale = 100;
 
+float edge_scale = 120*project_scale;
+
 FieldWiget::FieldWiget(QWidget *parent) :
     QGLWidget(parent)
 {
@@ -24,6 +26,37 @@ void FieldWiget::initializeGL()
 
     initTextures();
 
+    // Create the shader program
+    // Add both parts of the shader
+    program.addShaderFromSourceFile(QOpenGLShader::Vertex, "../game/TankVert.vert");
+    program.addShaderFromSourceFile(QOpenGLShader::Fragment, "../game/TankFrag.frag");
+
+    // Compile the shader program
+    program.link();
+
+    uvAttribute = program.attributeLocation("texCoords");
+    textureID  = program.uniformLocation("sampler");
+
+    // Set attributes for each shape
+    // Find Variable Locations
+    posAttribute = program.attributeLocation("position");
+    normAttribute = program.attributeLocation("normal");
+    pvMatrixUniform = program.uniformLocation("pvMatrix");
+    mMatrixUniform = program.uniformLocation("mMatrix");
+    colorUniform = program.uniformLocation("color");
+    shadowColorUniform = program.uniformLocation("shadowColor");
+    lightPosUniform = program.uniformLocation("lightPos");
+
+    // Enable the 2 vertex attribute arrays
+    glEnableVertexAttribArray(posAttribute);
+    glEnableVertexAttribArray(normAttribute);
+    glEnableVertexAttribArray(uvAttribute);
+
+    program.bind();
+    program.setUniformValue(lightPosUniform, QVector3D(0, 5.0, -5));
+
+    glClearColor(0.88, 0.88, 0.88, 1.0);
+
     glEnable(GL_DEPTH_TEST);
     startTimer(10);
 }
@@ -41,7 +74,17 @@ void FieldWiget::resizeGL(int w, int h)
 
 void FieldWiget::paintGL()
 {
+    view.setToIdentity();
+    view.translate(0, -0.5*project_scale, zoom);
+    view.rotate(viewRotateVert, 1, 0, 0);
+    view.rotate(viewRotatey, 0, 1 ,0);
 
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    //draw surroundings
+    glActiveTexture(GL_TEXTURE0);
+    createScene();
 }
 
 void FieldWiget::initTextures()
@@ -74,5 +117,21 @@ void FieldWiget::initTextures()
 
 void FieldWiget::createScene()
 {
-
+    GroundPlane::bindPositionBuffer();
+    glVertexAttribPointer(posAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0 );
+    GroundPlane::bindNormalBuffer();
+    glVertexAttribPointer(normAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    GroundPlane::bindUVBuffer();
+    glVertexAttribPointer(uvAttribute, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    //ground
+    glBindTexture(GL_TEXTURE_2D, textureHandles[0]);
+    mStack.push_back(model);
+    model.scale(edge_scale);
+    program.setUniformValue(pvMatrixUniform, perspective * view);
+    program.setUniformValue(mMatrixUniform, model);
+    program.setUniformValue(colorUniform, QVector3D(0.2, 0.6, 1.0));
+    program.setUniformValue(shadowColorUniform, QVector3D(0.2, 0.6, 1.0));
+    GroundPlane::draw();
+    model = mStack.back();
+    mStack.pop_back();
 }

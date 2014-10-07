@@ -22,3 +22,7 @@ HEADERS  += mainwindow.h \
     GroundPlane.h
 
 FORMS    += mainwindow.ui
+
+OTHER_FILES += \
+    TankFrag.frag \
+    TankVert.vert

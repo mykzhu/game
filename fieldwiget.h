@@ -4,6 +4,7 @@
 #include <QGLWidget>
 #include <QOpenGLFunctions>
 #include <QMatrix4x4>
+#include <QOpenGLShaderProgram>
 
 #include "GroundPlane.h"
 
@@ -29,9 +30,26 @@ signals:
 public slots:
 
 private:
+    QOpenGLShaderProgram program;
+    GLuint posAttribute;
+    GLuint normAttribute;
+    GLuint uvAttribute;
+    GLuint mMatrixUniform;
+    GLuint pvMatrixUniform;
+    GLuint colorUniform;
+    GLuint shadowColorUniform;
+    GLuint lightPosUniform;
+    GLuint textureID;
     QMatrix4x4 perspective;
+    QMatrix4x4 model;
+    QMatrix4x4 view;
+    std::list<QMatrix4x4> mStack;
 
     std::vector<GLuint> textureHandles;
+
+    float zoom;
+    float viewRotatey;
+    float viewRotateVert;
 
 };
 
