@@ -18,6 +18,6 @@ SOURCES += main.cpp\
 HEADERS  += \
     myglwidget.h
 
-FORMS    += window.ui
+FORMS    +=
 
 OTHER_FILES +=
